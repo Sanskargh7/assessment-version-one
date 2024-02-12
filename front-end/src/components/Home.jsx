@@ -83,7 +83,7 @@ const Home = () => {
         </div>
         <footer class="text-center">
           <div class="container">
-            Copyright © 2023.{" "}
+            Copyright © 2024.{" "}
             <a href="https://www.transfunnel.com/" target="_blank">
               TransFunnel Consulting
             </a>

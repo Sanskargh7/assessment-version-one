@@ -200,7 +200,6 @@ function Question() {
     // Listen to the offline status
     window.addEventListener('offline', handleStatusChange);
 
-
     return () => {
       window.removeEventListener('online', handleStatusChange);
       window.removeEventListener('offline', handleStatusChange);
@@ -359,7 +358,7 @@ function Question() {
           <footer className="text-center">
 
             <div className="container">
-              Copyright © 2023.{" "}
+              Copyright © 2024.{" "}
               <a href="https://www.transfunnel.com/" target="_blank">
                 TransFunnel Consulting
               </a>

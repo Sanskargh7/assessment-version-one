@@ -610,10 +610,10 @@ class User {
       const { passCode } = req.query;
       const validatePassCode = await ExamTypeModel.findOne({ passcode: passCode }, { exam_name: 1, slug: 1 });
       //check for duplicate exams
-      const isPresent = await UserResultModel.findOne({ examTypeId: validatePassCode._id });
-      if (isPresent) {
-        return res.status(200).json({ success: false, msg: "Already Done This Exam" })
-      }
+      // const isPresent = await UserResultModel.findOne({ examTypeId: validatePassCode._id });
+      // if (isPresent) {
+      //   return res.status(200).json({ success: false, msg: "Already Done This Exam" })
+      // }
       if (validatePassCode) {
         return res.status(200).json({ success: true, data: validatePassCode })
       } else {

@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/auth";
 import Spinner from "./Spinner";
+import * as moment from 'moment'
 
 const ExamList = () => {
 	const search = useLocation().search;
@@ -20,6 +21,7 @@ const ExamList = () => {
 	const [isPending, setIsPending] = useState(false);
 	const [pendingSlug, setPendingSlug] = useState("");
 	const [examName, setExamName] = useState("");
+	const [pendingExamDate, setPendingExamDate] = useState("");
 	const [PendingExamsCount, setPendingExamsCount] = useState();
 
 	const viewExamHandler = async (slug) => {
@@ -39,17 +41,18 @@ const ExamList = () => {
 			userId: userId
 		})
 		if (data.success) {
-			console.log(data)
+			//console.log(data)
 			setPendingExamsCount(data.responseCount)
 			setIsPending(true);
 			setPendingSlug(data.slug);
 			setExamName(data.name);
+			setPendingExamDate(data.createdAt);
 		}
 
 	}
 	//pending exam start handler
 	const pendingExamHandler = () => {
-		console.log(PendingExamsCount)
+		//console.log(PendingExamsCount)
 		if (PendingExamsCount < 3) {
 
 			setAuth({ ...auth, type: pendingSlug, exam_name: examName });
@@ -70,6 +73,8 @@ const ExamList = () => {
 
 
 			if (data) {
+				
+				
 				setDoneExams(data.data);
 				setPendingExams(data.pendingExams);
 				setIsLoading(false);
@@ -125,41 +130,43 @@ const ExamList = () => {
 							</a>
 						</div>
 					</div>
-					<div class="body_content result_page">
+					<div class="body_content result_page result_page_exam">
 						<div class="container">
-							<div class="exam_start">
-								<div class="exam_result_gh">
+							<div class="exam_start border_r5">
+								<div class="exam_result_lists_q">
 									<div class="exam_result_header">
-										<div className="row align-items-center">
-											<div className="col-md-6">
-												<div class="exam_name_title exam_result_title">
-													Exam List
+										<div className="exam_title_form">
+										  <div className="lst_title">
+										    Exam List 
+										  </div>
+											
+										  <div className="lst_form">
+											{
+												isPending ? '' :
+												<div className="passcode_form">
+													<input type="text" placeholder="Please enter passcode"
+														defaultValue={Passcode}
+														name="passcode"
+														onChange={(e) => setPasscode(e.target.value)} />
+													<button className="btn btn-secondry start-btn"
+														onClick={validatePassCodeHandler}
+													>Start Exam</button>
 												</div>
-											</div>
-											<div className="col-md-6 exam_result_passcode">
-												{
-													isPending ? '' :
-														<div className="passcode">
-															<input type="text" placeholder="Please enter passcode"
-																defaultValue={Passcode}
-																name="passcode"
-																onChange={(e) => setPasscode(e.target.value)} />
-															<button className="btn btn-secondry start-btn"
-																onClick={validatePassCodeHandler}
-															>Start Exam</button>
-														</div>
-												}
-											</div>
+											}
+										  </div>
 										</div>
-										<div class="exam_tag_line exam_tag_linev">
-											<div class="qustions_result_table qustions_result_tablev m-0">
+										<div class="exam_tag_line exam_list_act p-0">
+											<div class="exam_list_tab m-0">
 												<table width="100%" border="0" cellSpacing="0">
 													<thead>
 														<tr>
-															{/* <th>Sr No.</th> */}
-															<th width="60%" align="left">Name</th>
-															<th width="20%" align="center">Status</th>
-															<th width="20%" align="center">Action</th>
+															<th className="text-center" width="8%">S No.</th>
+															<th width="22%" align="left">Name</th>
+															<th width="15%" className="text-center">Percentage</th>
+															<th width="15%" className="text-center">Score</th>
+															<th width="15%" className="text-center">Date</th>
+															<th width="15%" className="text-center">Status</th>
+															<th width="10%" className="text-center">Action</th>
 
 														</tr>
 													</thead>
@@ -168,12 +175,16 @@ const ExamList = () => {
 															{
 																isPending ? <tr>
 
-																	<td className="cat-blog">{examName}</td>
-																	<td className="txtAlnCtr">
-																		<p className="levelcomplete" style={{ backgroundColor: 'red' }}>Incomplete</p>
+																	<td className="incomplete_td" align="center">1</td>
+																	<td className="incomplete_td cat-blog">{examName}</td>
+																	<td align="center" className="incomplete_td cat-blog">-</td>
+																	<td align="center" className="incomplete_td cat-blog">-</td>
+																	<td align="center" className="incomplete_td cat-blog">{moment(pendingExamDate).format('DD-MM-YYYY')}</td>
+																	<td align="center" className="incomplete_td">
+																		<span className="levelincomplete">Incomplete</span>
 																	</td>
-																	<td className="txtAlnCtr">
-																		<button className="btn btn-secondary" onClick={pendingExamHandler} style={{ backgroundColor: '#17a2b8', color: '#ffffff', border: 'none', padding: "8px 20px", }}>Resume</button>
+																	<td className="incomplete_td" align="center">
+																		<button className="sm_link" onClick={pendingExamHandler}>Resume</button>
 																	</td>
 
 																</tr> : ''
@@ -182,18 +193,21 @@ const ExamList = () => {
 															{
 																DoneExams.map((value, index) => (
 																	<tr key={index}>
-
-																		<td className="cat-blog">{value.exam_name}</td>
-																		<td className="txtAlnCtr">
-																			<p className="levelcomplete">Complete</p>
+																		<td className="complete_td" align="center">{(isPending)?index+2:index+1}</td>
+																		<td className="complete_td cat-blog">{value.exam_name}</td>
+																		<td align="center" className="complete_td cat-blog">{value.user_percentage} %</td>
+																		<td align="center" className="complete_td cat-blog">{value.marks_Obtained}</td>
+																	<td align="center" className="complete_td cat-blog">{moment(value.createdAt).format('DD-MM-YYYY')}</td>
+																		<td className="complete_td" align="center">
+																			<span className="levelcomplete">Complete</span>
 																		</td>
-																		<td className="txtAlnCtr">
-																			<button className="btn btn-sm"
+																		<td className="complete_td" align="center">
+																			<button className="sm_link"
 																				type="button"
 																				data-bs-toggle="modal"
 																				data-bs-target="#exampleModal"
 																				onClick={() => viewExamHandler(value.examType)}
-																			>View Result</button>
+																			>Full Result</button>
 
 																		</td>
 
@@ -223,7 +237,7 @@ const ExamList = () => {
 					</div>
 					<footer class="text-center">
 						<div class="container">
-							Copyright © 2023.{" "}
+							Copyright © 2024.{" "}
 							<a href="https://www.transfunnel.com/" target="_blank">
 								TransFunnel Consulting
 							</a>

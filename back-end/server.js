@@ -44,9 +44,9 @@ app.use(express.static(path.join(__dirname, "../front-end/build")));
 
 app.use("/api/v2", userRoutes);
 
-app.use("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../front-end/build/index.html"));
-});
+// app.use("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../front-end/build/index.html"));
+// });
 //setup cluster for Scalling the Application
 if (cluster.isPrimary) {
   //for worker process
