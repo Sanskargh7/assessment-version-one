@@ -219,7 +219,7 @@ const ExamList = () => {
 
 
 														</tbody> : <tbody>
-															<td style={{ fontSize: '20px' }} align="center" colSpan={3}><img src="/images/notFound.gif" alt="" /></td>
+															<td style={{ fontSize: '20px' }} align="center" colSpan={7}><img src="/images/notFound.gif" alt="" /></td>
 
 														</tbody>
 
