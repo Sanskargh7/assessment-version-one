@@ -25,6 +25,8 @@ router.post('/getallexamslist', Question.getallexamslist);
 router.post('/pending-exam', upload.none(), Users.pendingExams);
 router.post('/exam-types', upload.none(), Users.getAllExamsByUser);
 router.get("/validate/pass-code", Users.isValidExam);
+router.post("/pending-exam-discard", Users.pendingExamDiscard);
+router.post("/discard-pending-exam-one-day", Question.discardPendingExamInOneDay);
 
 export default router;
 

@@ -10,8 +10,9 @@ class Question {
   static calculateQuestionInfo = async (req, res) => {
     try {
       const examName = req.body.exam_name;
+      const examId = req.body.exam_id;
       const { userId } = req.body;
-      const checkPendingTest = await QuestionResponse.findOne({ userId: userId });
+      const checkPendingTest = await QuestionResponse.findOne({ userId: userId, exam_type: examId });
       if (checkPendingTest) {
         return res.status(200).json({ success: 201, data: checkPendingTest })
       }
@@ -159,8 +160,9 @@ class Question {
     try {
       const { userId, answer, questionTime, userIndexValue, exam_type } = req.body;
 
-      const fetchQuestion = await QuestionResponse.findOne({ userId: userId });
-      const { _id } = await ExamType.findOne({ slug: exam_type })
+      const { _id, exam_name, slug } = await ExamType.findOne({ slug: exam_type })
+      const fetchQuestion = await QuestionResponse.findOne({ userId: userId, exam_type: _id });
+
       if (fetchQuestion) {
         const checkResponseCount = fetchQuestion.responseCount;
         if (checkResponseCount < 3) {
@@ -170,12 +172,14 @@ class Question {
             questionTime: questionTime,
             userIndexValue: userIndexValue,
             exam_type: _id,
+            exam_name: exam_name,
+            exam_slug: slug,
             responseCount: checkResponseCount + 1
           }, { new: true })
           // console.log(updateQuestion)
           return res.status(200).json({ success: true })
         } else {
-          return res.status(200).json({ success: false, msg: "Sorry Please contact Admins" })
+          return res.status(200).json({ success: false, msg: "You exceeded your resume limit. Please contact to admin for more info. " })
         }
 
       }
@@ -229,6 +233,11 @@ class Question {
       return res.status(200).json({ success: false, message: "No exams find" });
 
     }
+  }
+
+  static discardPendingExamInOneDay = async (req, res) => {
+    //const { _id, exam_name, slug } = await ExamType.findOne({ slug: exam_type })
+    const fetchQuestion = await QuestionResponse.findOne({ userId: userId, exam_type: _id });
   }
 
 }

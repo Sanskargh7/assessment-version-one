@@ -503,7 +503,7 @@ class User {
 
 
     if (fetchExamType) {
-      return res.status(200).json({ success: true, msg: 'fetch successfully', data: fetchExamType, question: numberOfQuestion })
+      return res.status(200).json({ success: true, msg: 'Fetch successfully', data: fetchExamType, question: numberOfQuestion })
     } else {
       return res.status(200).json({ success: false, msg: 'This exam not exist!' })
     }
@@ -574,6 +574,7 @@ class User {
       const checkPendingExams = await UserResponseModel.find({ userId: userId });
       //find all exams given by users
       const getAllExams = await UserResultModel.find({ userId: userId })
+      //console.log(checkPendingExams)
       if (getAllExams) {
         return res.status(200).json({ success: true, data: getAllExams, pendingExams: checkPendingExams })
       } else {
@@ -589,10 +590,10 @@ class User {
   //pending exams
   static pendingExams = async (req, res) => {
     try {
-      const checkPendingExam = await UserResponseModel.findOne({ userId: req.body.userId });
+      const checkPendingExam = await UserResponseModel.find({ userId: req.body.userId });
 
       if (checkPendingExam) {
-        const getExamName = await ExamTypeModel.findOne({ _id: checkPendingExam.exam_type })
+        const getExamName = await ExamTypeModel.find({ _id: checkPendingExam.exam_type })
         // getExamName.slug
 
         return res.status(200).json({ success: true, slug: getExamName.slug, name: getExamName.exam_name, responseCount: checkPendingExam.responseCount })
@@ -607,13 +608,18 @@ class User {
   //get exam type using passcode 
   static isValidExam = async (req, res) => {
     try {
-      const { passCode } = req.query;
+      const { passCode, userId } = req.query;
       const validatePassCode = await ExamTypeModel.findOne({ passcode: passCode }, { exam_name: 1, slug: 1 });
       //check for duplicate exams
-      // const isPresent = await UserResultModel.findOne({ examTypeId: validatePassCode._id });
-      // if (isPresent) {
-      //   return res.status(200).json({ success: false, msg: "Already Done This Exam" })
-      // }
+      const isPresentDone = await UserResultModel.findOne({ examTypeId: validatePassCode._id, userId: userId });
+      if (isPresentDone) {
+        return res.status(200).json({ success: false, msg: "Already Done This Exam" })
+      }
+
+      const isExamPending = await UserResponseModel.findOne({ exam_type: validatePassCode._id, userId: userId });
+      if (isExamPending) {
+        return res.status(200).json({ success: false, msg: "Please start this exam form your exam list resume button" })
+      }
       if (validatePassCode) {
         return res.status(200).json({ success: true, data: validatePassCode })
       } else {
@@ -623,6 +629,27 @@ class User {
     catch (error) {
       return res.status(500).json({ success: false, error: error.message })
     }
+  }
+
+  static pendingExamDiscard = async (req, res) => {
+    try {
+      const { pendingExamId } = req.body;
+      const updateStatus = await UserResponseModel.findOneAndUpdate(
+        { _id: pendingExamId },
+        { discard: true }
+      );
+
+      if (updateStatus) {
+
+        return res
+          .status(200)
+          .json({ success: true, message: "This exam has been discared. Please contact for admin for futher access" });
+      }
+    }
+    catch (error) {
+      return res.status(500).json({ success: false, error: error.message })
+    }
+
   }
 
 

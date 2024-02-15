@@ -96,6 +96,7 @@ const Login = () => {
   //login for  already exists user
   const getUserInfoForExistsUser = async () => {
     try {
+
       const { data } = await axios.get(
         `/api/v2/login/exist-user?id=${id}&exam_type=${exam_type}`
       );
@@ -153,7 +154,7 @@ const Login = () => {
             </div>
             <div class="otp_content text-center">
 
-              <h3>Hii Inbound Student Please Start Test</h3>
+              <h3>Hi Inbound Student Please Start Test</h3>
               {/* <h4>Name:{auth.user.name}</h4> */}
               {/* <p>Enter the OTP (One Time Password) Sent to +91 {auth.user.phone}</p> */}
               <button

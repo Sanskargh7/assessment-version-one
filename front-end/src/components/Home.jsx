@@ -38,7 +38,8 @@ const Home = () => {
   useEffect(() => {
 
     const checkType = async () => {
-      const { data } = await axios.get(`/api/v2/type?exam_type=${auth.type}`);
+    
+      const { data } = await axios.get(`/api/v2/type?exam_type=${auth.type}&exam_id=${content._id}`);
 
       if (data.success) {
         setContent(data.data)

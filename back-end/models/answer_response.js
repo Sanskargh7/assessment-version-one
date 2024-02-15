@@ -23,9 +23,21 @@ const responseSchema = mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		allowNull: false
 	},
+	exam_name: {
+		type: String,
+		allowNull: false,
+	},
+	exam_slug: {
+		type: String,
+		allowNull: false,
+	},
 	responseCount: {
 		type: Number,
 		default: 0
+	},
+	discard: {
+		type: Boolean,
+		default: false
 	}
 
 }, { timestamps: true })

@@ -25,6 +25,7 @@ function Question() {
 
   const [timeLeft, { start, pause, resume, reset }] = useCountDown(0, interval);
   const exam_type = new URLSearchParams(search).get("exam_type");
+  const exam_id = new URLSearchParams(search).get('exam_id');
 
   const makeUniqueCategory = (arr) => {
     let set = new Set();
@@ -57,7 +58,8 @@ function Question() {
       answer: Update,
       questionTime: timeLeft,
       userIndexValue: currentQuestion,
-      exam_type: exam_type
+      exam_type: exam_type,
+     
     })
   };
 
@@ -72,12 +74,15 @@ function Question() {
         "/api/v2/questions",
         {
           exam_name: exam_type,
+          exam_id:exam_id,
           userId: auth.user._id
         }, { headers: { Authorization: `Bearer ${auth.token}` } }
 
       );
 
       if (data.success == 200) {
+        console.log(data.data);
+        console.log("from question tbale")
         setQuestion(data.data);
         makeUniqueCategory(data.data);
         setIsLoading(false);
@@ -86,7 +91,8 @@ function Question() {
         document.documentElement.requestFullscreen();
       }
       else if (data.success == 201) {
-
+        console.log(data.data);
+        console.log("from response tbale")
         setQuestion(data.data.userQuestion);
         makeUniqueCategory(data.data.userQuestion);
         setIsLoading(false);

@@ -21,7 +21,7 @@ const ExamList = () => {
 	const [isPending, setIsPending] = useState(false);
 	const [pendingSlug, setPendingSlug] = useState("");
 	const [examName, setExamName] = useState("");
-	const [pendingExamDate, setPendingExamDate] = useState("");
+	const [pendingExamLength, setPendingExamLength] = useState("");
 	const [PendingExamsCount, setPendingExamsCount] = useState();
 
 	const viewExamHandler = async (slug) => {
@@ -35,32 +35,50 @@ const ExamList = () => {
 		}
 	}
 
-	//check pending exam
-	const isPendingExam = async () => {
-		const { data } = await axios.post('/api/v2/pending-exam', {
-			userId: userId
-		})
-		if (data.success) {
-			//console.log(data)
-			setPendingExamsCount(data.responseCount)
-			setIsPending(true);
-			setPendingSlug(data.slug);
-			setExamName(data.name);
-			setPendingExamDate(data.createdAt);
-		}
+	// //check pending exam
+	// const isPendingExam = async () => {
+	// 	const { data } = await axios.post('/api/v2/pending-exam', {
+	// 		userId: userId
+	// 	})
+	// 	if (data.success) {
+	// 		console.log(data)
+	// 		setPendingExamsCount(data.responseCount)
+	// 		setIsPending(true);
+	// 		setPendingSlug(data.slug);
+	// 		setExamName(data.name);
+	// 		setPendingExamDate(data.createdAt);
+	// 	}
 
-	}
+	// }
 	//pending exam start handler
-	const pendingExamHandler = () => {
-		//console.log(PendingExamsCount)
-		if (PendingExamsCount < 3) {
+	const pendingExamHandler = (e) => {
 
-			setAuth({ ...auth, type: pendingSlug, exam_name: examName });
-			navigate("/home")
-		} else {
-			toast.error("Sorry Please contact Admin!")
-		}
+		 if (e.responseCount < 3) {
+
+		 	setAuth({ ...auth, type:e.exam_slug, exam_name: e.exam_name,exam_id:e.exam_type
+			 });
+		 	navigate("/home")
+		 } else {
+		 	toast.error("You exceeded your resume limit. Please contact to admin for more info.")
+		 }
 	}
+
+
+	const discardExamHandler = async (e) => {
+
+	const { data } = await axios.post('/api/v2/pending-exam-discard', {
+	 		pendingExamId: e._id
+		})
+
+		if(data.success== true){
+			getUserScore();
+			toast.success(data.message)
+		}else {
+			getUserScore();
+			toast.error(data.error.message)
+		}
+
+ }
 	//fetch user score
 	const getUserScore = async () => {
 		try {
@@ -73,10 +91,10 @@ const ExamList = () => {
 
 
 			if (data) {
-				
-				
 				setDoneExams(data.data);
+				//console.log(data.pendingExams,"pending")
 				setPendingExams(data.pendingExams);
+				setPendingExamLength(data.pendingExams.length)
 				setIsLoading(false);
 
 			}
@@ -87,8 +105,9 @@ const ExamList = () => {
 	};
 	const validatePassCodeHandler = async () => {
 		try {
-			const { data } = await axios.get(`/api/v2/validate/pass-code?passCode=${Passcode}`);
-
+			
+			const { data } = await axios.get(`/api/v2/validate/pass-code?passCode=${Passcode}&userId=${auth.user._id}`);
+			
 			if (data.success) {
 
 				setAuth({ ...auth, type: data.data.slug, exam_name: data.data.exam_name })
@@ -104,10 +123,9 @@ const ExamList = () => {
 
 	}
 	useEffect(() => {
-
 		if (userId) {
 			getUserScore();
-			isPendingExam();
+			//isPendingExam();
 
 		} else {
 
@@ -141,8 +159,8 @@ const ExamList = () => {
 										  </div>
 											
 										  <div className="lst_form">
-											{
-												isPending ? '' :
+											{/* {
+												isPending ? '' : */}
 												<div className="passcode_form">
 													<input type="text" placeholder="Please enter passcode"
 														defaultValue={Passcode}
@@ -152,7 +170,7 @@ const ExamList = () => {
 														onClick={validatePassCodeHandler}
 													>Start Exam</button>
 												</div>
-											}
+									
 										  </div>
 										</div>
 										<div class="exam_tag_line exam_list_act p-0">
@@ -161,39 +179,40 @@ const ExamList = () => {
 													<thead>
 														<tr>
 															<th className="text-center" width="8%">S No.</th>
-															<th width="22%" align="left">Name</th>
+															<th width="17%" align="left">Name</th>
 															<th width="15%" className="text-center">Percentage</th>
 															<th width="15%" className="text-center">Score</th>
 															<th width="15%" className="text-center">Date</th>
 															<th width="15%" className="text-center">Status</th>
-															<th width="10%" className="text-center">Action</th>
+															<th width="15%" className="text-center">Action</th>
 
 														</tr>
 													</thead>
-													{isPending || DoneExams.length >= 1 ?
+													{PendingExams || DoneExams.length >= 1 ?
 														<tbody>
 															{
-																isPending ? <tr>
-
-																	<td className="incomplete_td" align="center">1</td>
-																	<td className="incomplete_td cat-blog">{examName}</td>
+																PendingExams.map((value, index) => ( <tr>
+																	<td className="incomplete_td" align="center">{index+1}</td>
+																	<td className="incomplete_td cat-blog">{value.exam_name}</td>
 																	<td align="center" className="incomplete_td cat-blog">-</td>
 																	<td align="center" className="incomplete_td cat-blog">-</td>
-																	<td align="center" className="incomplete_td cat-blog">{moment(pendingExamDate).format('DD-MM-YYYY')}</td>
+																	<td align="center" className="incomplete_td cat-blog">{moment(value.createdAt).format('DD-MM-YYYY')}</td>
 																	<td align="center" className="incomplete_td">
 																		<span className="levelincomplete">Incomplete</span>
 																	</td>
 																	<td className="incomplete_td" align="center">
-																		<button className="sm_link" onClick={pendingExamHandler}>Resume</button>
+																		<button className="sm_link" disabled={(value.discard== true)?true:''} title={(value.discard== true)?'This exam is discarded. you can not resume this. Please contact to admin':''} onClick={()=>pendingExamHandler(value)}>Resume</button> 
+																		 | 
+																		<button className="sm_link" disabled={(value.discard== true)?true:''} onClick={()=>discardExamHandler(value)}>Discard</button>
 																	</td>
 
-																</tr> : ''
+																</tr> ))
 															}
 
 															{
 																DoneExams.map((value, index) => (
 																	<tr key={index}>
-																		<td className="complete_td" align="center">{(isPending)?index+2:index+1}</td>
+																		<td className="complete_td" align="center">{(PendingExams)?index+pendingExamLength+1:index+1}</td>
 																		<td className="complete_td cat-blog">{value.exam_name}</td>
 																		<td align="center" className="complete_td cat-blog">{value.user_percentage} %</td>
 																		<td align="center" className="complete_td cat-blog">{value.marks_Obtained}</td>
