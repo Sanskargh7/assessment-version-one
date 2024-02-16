@@ -7,13 +7,19 @@ import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import userRoutes from "./routes/userRoute.js";
+import node_cron from "node-cron";
+import Questions from "./controller/Question.js";
 // // import { sendEmailTemplate } from "./controller/email.js";
 const numberOfWorker = os.cpus().length;
 
 
 
 
+node_cron.schedule('* 12 * * *', () => {
+  Questions.discardPendingExamInOneDay()
 
+  console.log('Running a task every minute');
+});
 
 //env config
 dotenv.config();
@@ -43,6 +49,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, "../front-end/build")));
 
 app.use("/api/v2", userRoutes);
+
 
 // app.use("*", (req, res) => {
 //   res.sendFile(path.join(__dirname, "../front-end/build/index.html"));

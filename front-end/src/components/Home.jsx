@@ -26,7 +26,23 @@ const Home = () => {
       );
       if (data.success) {
 
+
+        const { pendingexamdata } = await axios.post(
+          "/api/v2/pending-exam-add-count",
+          {
+            id: auth.user._id,
+            exam_type: auth.type,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`,
+            },
+          }
+        );
+
+        if (data.success) {
         navigate(`/question?exam_type=${auth.type}`);
+        }
       } else {
         toast.error(data.msg);
       }

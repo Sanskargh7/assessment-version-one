@@ -288,7 +288,15 @@ const LoginWithPhone = () => {
         }
       );
       if (data.success) {
+        console.log(data.userInfo._id);
 
+        // const { data2 } = await axios.post(
+        //   `/api/v2/pending-exam-add-count`,
+        //   {
+        //     userId: data.userInfo._id,
+            
+        //   }
+        // );
         sessionStorage.removeItem('User_key');
         toast.success(data.userInfo.message);
         setAuth({

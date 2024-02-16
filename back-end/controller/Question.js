@@ -7,12 +7,16 @@ import QuestionModel from "../models/question.js";
 
 
 class Question {
+
   static calculateQuestionInfo = async (req, res) => {
     try {
       const examName = req.body.exam_name;
       const examId = req.body.exam_id;
       const { userId } = req.body;
-      const checkPendingTest = await QuestionResponse.findOne({ userId: userId, exam_type: examId });
+      const { _id } = await ExamType.findOne({ slug: examName })
+
+
+      const checkPendingTest = await QuestionResponse.findOne({ userId: userId, exam_type: _id });
       if (checkPendingTest) {
         return res.status(200).json({ success: 201, data: checkPendingTest })
       }
@@ -164,23 +168,23 @@ class Question {
       const fetchQuestion = await QuestionResponse.findOne({ userId: userId, exam_type: _id });
 
       if (fetchQuestion) {
-        const checkResponseCount = fetchQuestion.responseCount;
-        if (checkResponseCount < 3) {
+        // const checkResponseCount = fetchQuestion.responseCount;
+        // if (checkResponseCount < 3) {
 
-          const updateQuestion = await QuestionResponse.findOneAndUpdate({ _id: fetchQuestion._id }, {
-            userQuestion: answer,
-            questionTime: questionTime,
-            userIndexValue: userIndexValue,
-            exam_type: _id,
-            exam_name: exam_name,
-            exam_slug: slug,
-            responseCount: checkResponseCount + 1
-          }, { new: true })
-          // console.log(updateQuestion)
-          return res.status(200).json({ success: true })
-        } else {
-          return res.status(200).json({ success: false, msg: "You exceeded your resume limit. Please contact to admin for more info. " })
-        }
+        const updateQuestion = await QuestionResponse.findOneAndUpdate({ _id: fetchQuestion._id }, {
+          userQuestion: answer,
+          questionTime: questionTime,
+          userIndexValue: userIndexValue,
+          exam_type: _id,
+          exam_name: exam_name,
+          exam_slug: slug,
+          //responseCount: 0,
+        }, { new: true })
+        // console.log(updateQuestion)
+        return res.status(200).json({ success: true })
+        // } else {
+        //   return res.status(200).json({ success: false, msg: "You exceeded your resume limit. Please contact to admin for more info. " })
+        // }
 
       }
       else {
@@ -236,9 +240,45 @@ class Question {
   }
 
   static discardPendingExamInOneDay = async (req, res) => {
-    //const { _id, exam_name, slug } = await ExamType.findOne({ slug: exam_type })
-    const fetchQuestion = await QuestionResponse.findOne({ userId: userId, exam_type: _id });
+    let d = new Date();
+    d.setDate(d.getDate() - 1);
+
+    const data = await QuestionResponse.find({ "createdAt": { $gte: d } });
+
+    if (data) {
+      data.forEach(async (datae, index) => {
+
+        const document = await QuestionResponse.findByIdAndUpdate({ _id: datae._id }, { discard: true })
+      });
+      //return res.status(200).json({ success: true });
+    }
+
   }
+  static pendingExamAddCount = async (req, res) => {
+    const id = req.body.id;
+    const exam_type = req.body.exam_type;
+
+    const { _id } = await ExamType.findOne({ slug: exam_type })
+    const fetchQuestion = await QuestionResponse.findOne({ userId: id, exam_type: _id });
+
+    if (fetchQuestion) {
+      const checkResponseCount = fetchQuestion.responseCount;
+      //if (checkResponseCount < 3) {
+
+      const updateQuestion = await QuestionResponse.findOneAndUpdate({ _id: fetchQuestion._id }, {
+
+        responseCount: checkResponseCount + 1,
+      }, { new: true })
+      // console.log(updateQuestion)
+      return res.status(200).json({ success: true })
+    } else {
+      return res.status(200).json({ success: true })
+    }
+
+  }
+
+
+
 
 }
 

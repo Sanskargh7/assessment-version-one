@@ -201,9 +201,9 @@ const ExamList = () => {
 																		<span className="levelincomplete">Incomplete</span>
 																	</td>
 																	<td className="incomplete_td" align="center">
-																		<button className="sm_link" disabled={(value.discard== true)?true:''} title={(value.discard== true)?'This exam is discarded. you can not resume this. Please contact to admin':''} onClick={()=>pendingExamHandler(value)}>Resume</button> 
+																		<button className={(value.discard== true)?'sm_not_link':'sm_link'} disabled={(value.discard== true)?true:''} title={(value.discard== true)?'This exam is discarded. you can not resume this. Please contact to admin':''} onClick={()=>pendingExamHandler(value)}>Resume&nbsp;</button> 
 																		 | 
-																		<button className="sm_link" disabled={(value.discard== true)?true:''} onClick={()=>discardExamHandler(value)}>Discard</button>
+																		<button className={(value.discard== true)?'sm_not_link':'sm_link'}  disabled={(value.discard== true)?true:''} onClick={()=>discardExamHandler(value)}> &nbsp; {(value.discard== true)? 'Discarded':'Discard'}</button>
 																	</td>
 
 																</tr> ))
