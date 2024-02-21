@@ -12,10 +12,7 @@ import Questions from "./controller/Question.js";
 // // import { sendEmailTemplate } from "./controller/email.js";
 const numberOfWorker = os.cpus().length;
 
-
-
-
-node_cron.schedule('* 12 * * *', () => {
+node_cron.schedule('* 23 * * *', () => {
   Questions.discardPendingExamInOneDay()
 
   console.log('Running a task every minute');
